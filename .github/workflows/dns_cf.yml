@@ -3,7 +3,7 @@ name: 'dns_cf_push'
 on:
   schedule:
     - cron: '0 */6 * * *'
-  workflow_dispatch:  # 添加这一行，允许手动触发
+  workflow_dispatch:
 
 jobs:
   build:
@@ -18,6 +18,7 @@ jobs:
       - name: 'Install dependencies'
         run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: 'run dnscf'
+        continue-on-error: true
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
