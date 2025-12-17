@@ -12,6 +12,10 @@ CF_ZONE_ID      =   os.environ["CF_ZONE_ID"]
 CF_DNS_NAMES    =   os.environ.get("CF_DNS_NAMES", "")
 CF_DNS_NAME     =   os.environ.get("CF_DNS_NAME", "")
 
+# 调试信息
+print(f"DEBUG: CF_DNS_NAMES 长度={len(CF_DNS_NAMES)}, 是否为空={not CF_DNS_NAMES}")
+print(f"DEBUG: CF_DNS_NAME 长度={len(CF_DNS_NAME)}, 是否为空={not CF_DNS_NAME}")
+
 # pushplus_token
 PUSHPLUS_TOKEN  =   os.environ["PUSHPLUS_TOKEN"]
 
