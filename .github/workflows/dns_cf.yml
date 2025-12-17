@@ -27,6 +27,6 @@ jobs:
           # 单域名可以留空或保留旧值，脚本如不再使用可忽略
           CF_DNS_NAME: ${{ secrets.CF_DNS_NAME }}
         
-          CF_DNS_NAMES: ${{ vars.CF_DNS_NAMES }}
+          CF_DNS_NAMES: ${{ secrets.CF_DNS_NAMES }}
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
         run: python dnscf.py
