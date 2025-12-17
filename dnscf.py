@@ -8,13 +8,8 @@ import json
 CF_API_TOKEN    =   os.environ["CF_API_TOKEN"]
 CF_ZONE_ID      =   os.environ["CF_ZONE_ID"]
 
-# 支持多域名配置，优先使用 CF_DNS_NAMES，如果不存在则使用 CF_DNS_NAME
-CF_DNS_NAMES    =   os.environ.get("CF_DNS_NAMES", "")
+# 域名配置（支持单个或多个逗号分隔的域名）
 CF_DNS_NAME     =   os.environ.get("CF_DNS_NAME", "")
-
-# 调试信息
-print(f"DEBUG: CF_DNS_NAMES 长度={len(CF_DNS_NAMES)}, 是否为空={not CF_DNS_NAMES}")
-print(f"DEBUG: CF_DNS_NAME 长度={len(CF_DNS_NAME)}, 是否为空={not CF_DNS_NAME}")
 
 # pushplus_token
 PUSHPLUS_TOKEN  =   os.environ["PUSHPLUS_TOKEN"]
@@ -97,14 +92,19 @@ def main():
         print("Failed to get IP addresses")
         return
     
-    ip_addresses = ip_addresses_str.split(',')
+    ip_addresses = [ip.strip() for ip in ip_addresses_str.split(',')]
     push_plus_content = []
     
-    # 判断使用多域名还是单域名模式
-    if CF_DNS_NAMES:
+    if not CF_DNS_NAME:
+        print("错误: 未配置 CF_DNS_NAME")
+        return
+    
+    # 自动判断：如果包含逗号，就是多域名模式
+    if ',' in CF_DNS_NAME:
         # 多域名模式
-        dns_names = [name.strip() for name in CF_DNS_NAMES.split(',')]
+        dns_names = [name.strip() for name in CF_DNS_NAME.split(',')]
         print(f"多域名模式: 共 {len(dns_names)} 个域名")
+        print(f"域名列表: {dns_names}")
         
         # 确保 IP 数量足够
         if len(ip_addresses) < len(dns_names):
@@ -126,12 +126,12 @@ def main():
                 continue
             
             # 使用第一个记录进行更新
-            ip_address = ip_addresses[index].strip()
+            ip_address = ip_addresses[index]
             dns = update_dns_record(dns_records[0], dns_name, ip_address)
             push_plus_content.append(dns)
     
-    elif CF_DNS_NAME:
-        # 单域名模式（向后兼容）
+    else:
+        # 单域名模式（一个域名对应多个IP/多条DNS记录）
         print(f"单域名模式: {CF_DNS_NAME}")
         dns_records = get_dns_records(CF_DNS_NAME)
         
@@ -144,11 +144,8 @@ def main():
             if index >= len(dns_records):
                 break
             # 执行 DNS 变更
-            dns = update_dns_record(dns_records[index], CF_DNS_NAME, ip_address.strip())
+            dns = update_dns_record(dns_records[index], CF_DNS_NAME, ip_address)
             push_plus_content.append(dns)
-    else:
-        print("错误: 未配置 CF_DNS_NAMES 或 CF_DNS_NAME")
-        return
 
     # 发送推送通知
     if push_plus_content:
