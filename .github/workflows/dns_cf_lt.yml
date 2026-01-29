@@ -1,8 +1,8 @@
-name: 'dns_cf_yd_push'
+name: 'dns_cf_lt_push'
 
 on:
   schedule:
-    - cron: '5 */6 * * *'  # 每6小时运行一次，比电信晚5分钟
+    - cron: '10 */6 * * *'  # 每6小时运行一次，比移动晚5分钟
   workflow_dispatch:
 
 jobs:
@@ -20,11 +20,11 @@ jobs:
       - name: 'Install dependencies'
         run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: 'run dnscf_yd'
+      - name: 'run dnscf_lt'
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
-          # 移动优选域名配置，支持多个逗号分隔的域名
+          # 联通优选域名配置（继承移动版secret）
           CF_DNS_NAME_YD: ${{ secrets.CF_DNS_NAME_YD }}
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
-        run: python dnscf_yd.py
+        run: python dnscf_lt.py

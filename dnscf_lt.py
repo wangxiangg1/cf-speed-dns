@@ -20,10 +20,10 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-def get_cf_speed_test_ip_yd(timeout=15, max_retries=3):
+def get_cf_speed_test_ip_lt(timeout=15, max_retries=3):
     """
-    从 https://api.uouin.com/cloudflare.html 获取移动优选IP
-    解析HTML表格，筛选出"移动"线路的IP
+    从 https://api.uouin.com/cloudflare.html 获取联通优选IP
+    解析HTML表格，筛选出"联通"线路的IP
     """
     url = 'https://api.uouin.com/cloudflare.html'
     
@@ -47,7 +47,7 @@ def get_cf_speed_test_ip_yd(timeout=15, max_retries=3):
                 # 获取所有行
                 rows = table.find_all('tr')
                 
-                mobile_ips = []
+                unicom_ips = []
                 
                 for row in rows:
                     cells = row.find_all('td')
@@ -56,21 +56,21 @@ def get_cf_speed_test_ip_yd(timeout=15, max_retries=3):
                         line_type = cells[0].get_text(strip=True)
                         ip_address = cells[1].get_text(strip=True)
                         
-                        # 筛选移动线路
-                        if '移动' in line_type and ip_address:
+                        # 筛选联通线路
+                        if '联通' in line_type and ip_address:
                             # 排除IPv6地址
                             if ':' not in ip_address:
-                                mobile_ips.append(ip_address)
+                                unicom_ips.append(ip_address)
                 
-                if mobile_ips:
-                    print(f"成功获取 {len(mobile_ips)} 个移动优选IP")
-                    return ','.join(mobile_ips)
+                if unicom_ips:
+                    print(f"成功获取 {len(unicom_ips)} 个联通优选IP")
+                    return ','.join(unicom_ips)
                 else:
-                    print("未找到移动优选IP")
+                    print("未找到联通优选IP")
                     
         except Exception as e:
             traceback.print_exc()
-            print(f"get_cf_speed_test_ip_yd Request failed (attempt {attempt + 1}/{max_retries}): {e}")
+            print(f"get_cf_speed_test_ip_lt Request failed (attempt {attempt + 1}/{max_retries}): {e}")
     
     return None
 
@@ -114,7 +114,7 @@ def push_plus(content):
     url = 'http://www.pushplus.plus/send'
     data = {
         "token": PUSHPLUS_TOKEN,
-        "title": "IP优选DNSCF推送(移动)",
+        "title": "IP优选DNSCF推送(联通)",
         "content": content,
         "template": "markdown",
         "channel": "wechat"
@@ -126,17 +126,17 @@ def push_plus(content):
 # 主函数
 def main():
     print("=" * 50)
-    print("移动优选 DNS 更新脚本")
+    print("联通优选 DNS 更新脚本")
     print("=" * 50)
     
-    # 获取移动优选IP
-    ip_addresses_str = get_cf_speed_test_ip_yd()
+    # 获取联通优选IP
+    ip_addresses_str = get_cf_speed_test_ip_lt()
     if not ip_addresses_str:
-        print("Failed to get mobile IP addresses")
+        print("Failed to get unicom IP addresses")
         return
     
     ip_addresses = [ip.strip() for ip in ip_addresses_str.split(',')]
-    print(f"获取到 {len(ip_addresses)} 个移动优选IP: {ip_addresses[:5]}...")  # 只显示前5个
+    print(f"获取到 {len(ip_addresses)} 个联通优选IP: {ip_addresses[:5]}...")  # 只显示前5个
     
     push_plus_content = []
     
