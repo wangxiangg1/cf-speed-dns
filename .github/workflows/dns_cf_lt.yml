@@ -2,7 +2,7 @@ name: 'dns_cf_lt_push'
 
 on:
   schedule:
-    - cron: '10 */6 * * *'  # 每6小时运行一次，比移动晚5分钟
+    - cron: '10 */6 * * *'  # 每6小时运行一次
   workflow_dispatch:
 
 jobs:
@@ -18,7 +18,10 @@ jobs:
           python-version: 3.12
 
       - name: 'Install dependencies'
-        run: if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        run: |
+          pip install requests playwright
+          playwright install chromium
+          playwright install-deps chromium
 
       - name: 'run dnscf_lt'
         env:

@@ -3,9 +3,9 @@ import traceback
 import time
 import os
 import json
-from bs4 import BeautifulSoup
+from playwright.sync_api import sync_playwright
 
-# API 密钥
+# Cloudflare API 密钥
 CF_API_TOKEN    =   os.environ["CF_API_TOKEN"]
 CF_ZONE_ID      =   os.environ["CF_ZONE_ID"]
 
@@ -20,47 +20,51 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-def get_cf_speed_test_ip_lt(timeout=15, max_retries=3):
+def get_cf_speed_test_ip_lt(timeout=30, max_retries=3):
     """
-    从 https://api.uouin.com/cloudflare.html 获取联通优选IP
-    解析HTML表格，筛选出"联通"线路的IP
+    使用 Playwright 无头浏览器从 https://api.uouin.com/cloudflare.html 获取联通优选IP
+    等待 JavaScript 动态加载完成后再解析数据
     """
     url = 'https://api.uouin.com/cloudflare.html'
     
     for attempt in range(max_retries):
         try:
-            # 发送 GET 请求
-            response = requests.get(url, timeout=timeout, headers={
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            })
+            print(f"尝试获取优选IP (第 {attempt + 1}/{max_retries} 次)...")
             
-            if response.status_code == 200:
-                # 解析HTML
-                soup = BeautifulSoup(response.text, 'lxml')
+            with sync_playwright() as p:
+                # 启动无头浏览器
+                browser = p.chromium.launch(headless=True)
+                page = browser.new_page()
                 
-                # 查找表格
-                table = soup.find('table')
-                if not table:
-                    print("未找到表格")
-                    continue
+                # 访问页面
+                page.goto(url, wait_until='networkidle', timeout=timeout * 1000)
                 
-                # 获取所有行
-                rows = table.find_all('tr')
+                # 等待表格加载完成（等待包含"联通"的单元格出现）
+                page.wait_for_selector('td:has-text("联通")', timeout=15000)
+                
+                # 额外等待一下确保数据完全加载
+                time.sleep(2)
+                
+                # 获取所有表格行
+                rows = page.query_selector_all('table tr')
                 
                 unicom_ips = []
                 
                 for row in rows:
-                    cells = row.find_all('td')
+                    cells = row.query_selector_all('td')
                     if len(cells) >= 2:
                         # 第一列是线路，第二列是IP
-                        line_type = cells[0].get_text(strip=True)
-                        ip_address = cells[1].get_text(strip=True)
+                        line_type = cells[0].inner_text().strip()
+                        ip_address = cells[1].inner_text().strip()
                         
                         # 筛选联通线路
                         if '联通' in line_type and ip_address:
                             # 排除IPv6地址
                             if ':' not in ip_address:
                                 unicom_ips.append(ip_address)
+                                print(f"  找到联通IP: {ip_address}")
+                
+                browser.close()
                 
                 if unicom_ips:
                     print(f"成功获取 {len(unicom_ips)} 个联通优选IP")
@@ -126,7 +130,7 @@ def push_plus(content):
 # 主函数
 def main():
     print("=" * 50)
-    print("联通优选 DNS 更新脚本")
+    print("联通优选 DNS 更新脚本 (Playwright版)")
     print("=" * 50)
     
     # 获取联通优选IP
