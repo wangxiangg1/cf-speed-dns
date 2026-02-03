@@ -27,7 +27,7 @@ jobs:
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
           CF_ZONE_ID: ${{ secrets.CF_ZONE_ID }}
-          # 电信优选域名配置，支持多个逗号分隔的域名
-          CF_DNS_NAME_DX: ${{ secrets.CF_DNS_NAME_DX }}
+          # 电信优选域名配置（继承原有 secret）
+          CF_DNS_NAME: ${{ secrets.CF_DNS_NAME }}
           PUSHPLUS_TOKEN: ${{ secrets.PUSHPLUS_TOKEN }}
         run: python dnscf_dx.py

@@ -10,7 +10,7 @@ CF_API_TOKEN    =   os.environ["CF_API_TOKEN"]
 CF_ZONE_ID      =   os.environ["CF_ZONE_ID"]
 
 # 域名配置（支持单个或多个逗号分隔的域名）
-CF_DNS_NAME_DX  =   os.environ.get("CF_DNS_NAME_DX", "")
+CF_DNS_NAME  =   os.environ.get("CF_DNS_NAME", "")
 
 # pushplus_token
 PUSHPLUS_TOKEN  =   os.environ["PUSHPLUS_TOKEN"]
@@ -144,14 +144,14 @@ def main():
     
     push_plus_content = []
     
-    if not CF_DNS_NAME_DX:
-        print("错误: 未配置 CF_DNS_NAME_DX")
+    if not CF_DNS_NAME:
+        print("错误: 未配置 CF_DNS_NAME")
         return
     
     # 自动判断：如果包含逗号，就是多域名模式
-    if ',' in CF_DNS_NAME_DX:
+    if ',' in CF_DNS_NAME:
         # 多域名模式
-        dns_names = [name.strip() for name in CF_DNS_NAME_DX.split(',')]
+        dns_names = [name.strip() for name in CF_DNS_NAME.split(',')]
         print(f"\n多域名模式: 共 {len(dns_names)} 个域名")
         print(f"域名列表: {dns_names}")
         
@@ -181,11 +181,11 @@ def main():
     
     else:
         # 单域名模式（一个域名对应多个IP/多条DNS记录）
-        print(f"\n单域名模式: {CF_DNS_NAME_DX}")
-        dns_records = get_dns_records(CF_DNS_NAME_DX)
+        print(f"\n单域名模式: {CF_DNS_NAME}")
+        dns_records = get_dns_records(CF_DNS_NAME)
         
         if not dns_records:
-            print(f"未找到域名 {CF_DNS_NAME_DX} 的DNS记录")
+            print(f"未找到域名 {CF_DNS_NAME} 的DNS记录")
             return
         
         # 遍历 IP 地址列表
@@ -193,7 +193,7 @@ def main():
             if index >= len(dns_records):
                 break
             # 执行 DNS 变更
-            dns = update_dns_record(dns_records[index], CF_DNS_NAME_DX, ip_address)
+            dns = update_dns_record(dns_records[index], CF_DNS_NAME, ip_address)
             push_plus_content.append(dns)
 
     # 发送推送通知
