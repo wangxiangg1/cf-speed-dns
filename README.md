@@ -26,13 +26,15 @@
 
 ```
 cf-speed-dns/
-├── dnscf.py          # Cloudflare DNS 更新（电信线路）
+├── dnscf.py          # Cloudflare DNS 更新（旧版电信）
+├── dnscf_dx.py       # Cloudflare DNS 更新（电信线路，Playwright版）
 ├── dnscf_lt.py       # Cloudflare DNS 更新（联通线路，Playwright版）
 ├── dnspod.py         # DNSPod DNS 更新
 ├── qCloud.py         # 腾讯云相关
 ├── requirements.txt  # Python 依赖
 └── .github/workflows/
-    ├── dns_cf.yml    # 电信优选 Action
+    ├── dns_cf.yml    # 旧版电信优选 Action
+    ├── dns_cf_dx.yml # 电信优选 Action（Playwright）
     ├── dns_cf_lt.yml # 联通优选 Action（Playwright）
     ├── dns_pod.yml   # DNSPod Action
     └── sync.yml      # 同步 Action
@@ -56,7 +58,8 @@ cf-speed-dns/
 |------------|------|------|
 | `CF_API_TOKEN` | Cloudflare API Token | `xxxxxxxxxxxxxxxx` |
 | `CF_ZONE_ID` | Cloudflare Zone ID | `xxxxxxxxxxxxxxxx` |
-| `CF_DNS_NAME` | 电信优选域名 | `cf.example.com` |
+| `CF_DNS_NAME` | 旧版电信优选域名 | `cf.example.com` |
+| `CF_DNS_NAME_DX` | 电信优选域名（Playwright版，支持多个） | `dx1.example.com,dx2.example.com` |
 | `CF_DNS_NAME_YD` | 联通优选域名（支持多个） | `lt1.example.com,lt2.example.com` |
 | `PUSHPLUS_TOKEN` | PushPlus 推送 Token | `xxxxxxxxxxxxxxxx` |
 
@@ -79,7 +82,8 @@ cf-speed-dns/
 
 | Workflow | 运行频率 | 说明 |
 |----------|---------|------|
-| `dns_cf.yml` | 每 6 小时 | 电信优选 IP 更新 |
+| `dns_cf.yml` | 每 6 小时 | 旧版电信优选 IP 更新 |
+| `dns_cf_dx.yml` | 每 6 小时 | 电信优选 IP 更新（Playwright） |
 | `dns_cf_lt.yml` | 每 6 小时 | 联通优选 IP 更新（Playwright） |
 | `dns_pod.yml` | 每 6 小时 | DNSPod 更新 |
 
