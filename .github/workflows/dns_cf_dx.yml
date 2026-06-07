@@ -5,6 +5,10 @@ on:
     - cron: '0 * * * *'  # 每小时运行一次
   workflow_dispatch:
 
+# 🌟 新增这一段：强制所有 Action 使用最新的 Node.js 24 运行，彻底消除黄色感叹号警告
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
