@@ -2,7 +2,7 @@ name: 'dns_cf_dx_push'
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # 每6小时运行一次
+    - cron: '0 * * * *'  # 🌟 修改点：从 '0 */6 * * *' 改为 '0 * * * *'，代表每小时的第 0 分钟运行一次
   workflow_dispatch:
 
 jobs:
@@ -10,10 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 'Checkout'
-        uses: actions/checkout@v4  # 🌟 修改点 1：将 v3 升级到 v4
+        uses: actions/checkout@v4
 
       - name: 'Set up Python'
-        uses: actions/setup-python@v5  # 🌟 修改点 2：将 v4 升级到 v5
+        uses: actions/setup-python@v5
         with:
           python-version: 3.12
 
